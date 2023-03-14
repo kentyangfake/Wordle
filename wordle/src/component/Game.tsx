@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface LetterObject {
-  status: string;
+  status: 'input' | 'wrong' | 'hasLetter' | 'right' | 'unInput';
   letter: string;
 }
 
@@ -26,13 +26,13 @@ const Box: React.FC<LetterProps> = ({ rowData }) => {
     case 'input':
       boxStyle = boxStyle.concat(' ', boxStyleInput);
       break;
-    case 'Wrong':
+    case 'wrong':
       boxStyle = boxStyle.concat(' ', boxStyleWrong);
       break;
-    case 'HasLetter':
+    case 'hasLetter':
       boxStyle = boxStyle.concat(' ', boxStyleHasLetter);
       break;
-    case 'Right':
+    case 'right':
       boxStyle = boxStyle.concat(' ', boxStyleRight);
       break;
     default:
@@ -54,10 +54,10 @@ const Row: React.FC<RowProps> = ({ gameData }) => {
 };
 
 const Game: React.FC = () => {
-  const data = [
+  const data: LetterObject[][] = [
     [
-      { status: 'Right', letter: 'L' },
-      { status: 'Wrong', letter: 'A' },
+      { status: 'right', letter: 'L' },
+      { status: 'wrong', letter: 'A' },
       { status: 'unInput', letter: '' },
       { status: 'unInput', letter: '' },
       { status: 'unInput', letter: '' },
@@ -79,7 +79,7 @@ const Game: React.FC = () => {
     [
       { status: 'input', letter: 'A' },
       { status: 'unInput', letter: '' },
-      { status: 'HasLetter', letter: 'K' },
+      { status: 'hasLetter', letter: 'K' },
       { status: 'unInput', letter: '' },
       { status: 'unInput', letter: '' },
     ],
