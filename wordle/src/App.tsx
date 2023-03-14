@@ -1,11 +1,14 @@
 import React from 'react';
+import Game from './component/Game';
 
 function App() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold underline">
-      Hello world!
+    <div className="flex-col w-screen">
+      <h1 className="text-3xl text-center p-3 h-16 font-bold">
+      Wordle
       </h1>
+      <hr></hr>
+      <Game />
     </div>
   );
 }
