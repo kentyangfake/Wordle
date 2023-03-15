@@ -1,6 +1,12 @@
 import React from 'react';
 
-type Status = 'active' | 'gray' | 'yellow' | 'green' | 'blank';
+enum Status {
+  Active,
+  Gray,
+  Yellow,
+  Green,
+  Blank,
+}
 
 interface BoxType {
   status: Status;
@@ -23,16 +29,16 @@ const Box: React.FC<BoxProps> = ({ letterObject }) => {
   let boxStyle = 'flex justify-center items-center w-16 h-16';
 
   switch (letterObject.status) {
-    case 'active':
+    case Status.Active:
       boxStyle = boxStyle.concat(' ', BoxStatus.active);
       break;
-    case 'gray':
+    case Status.Gray:
       boxStyle = boxStyle.concat(' ', BoxStatus.gray);
       break;
-    case 'yellow':
+    case Status.Yellow:
       boxStyle = boxStyle.concat(' ', BoxStatus.yellow);
       break;
-    case 'green':
+    case Status.Green:
       boxStyle = boxStyle.concat(' ', BoxStatus.green);
       break;
     default:

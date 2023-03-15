@@ -1,8 +1,13 @@
 import React from 'react';
 import Box from './Box';
 
-type Status = 'active' | 'gray' | 'yellow' | 'green' | 'blank';
-
+enum Status {
+  Active,
+  Gray,
+  Yellow,
+  Green,
+  Blank,
+}
 interface BoxType {
   status: Status;
   letter: string;

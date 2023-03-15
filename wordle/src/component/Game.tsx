@@ -3,7 +3,13 @@ import Row from './Row';
 
 const answer: string[] = ['S', 'M', 'I', 'L', 'E'];
 
-type Status = 'active' | 'gray' | 'yellow' | 'green' | 'blank';
+enum Status {
+  Active,
+  Gray,
+  Yellow,
+  Green,
+  Blank,
+}
 
 interface BoxType {
   status: Status;
@@ -28,7 +34,7 @@ type Action =
 
 function reducer(state: BoxType[], action: Action): BoxType[] {
   function upDateArr(current: CurrentIndex, newValue: string) {
-    const isClear = newValue === '' ? 'blank' : 'active';
+    const isClear = newValue === '' ? Status.Blank : Status.Active;
     const newArr: BoxType[] = state.map((letter, index) =>
       index ===
       (newValue === '' ? current.letterIndex - 1 : current.letterIndex)
@@ -59,46 +65,46 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
 const Game: React.FC = () => {
   const initData: BoxType[][] = [
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
     [
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
-      { status: 'blank', letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
+      { status: Status.Blank, letter: '' },
     ],
   ];
   const [currentIndex, setCurrentIndex] = useState<CurrentIndex>({
@@ -112,11 +118,11 @@ const Game: React.FC = () => {
   function checkAnswer(currentRow: BoxType[]): BoxType[] {
     const statusArray: Status[] = currentRow.map((box, index): Status => {
       if (box.letter === answer[index]) {
-        return 'green';
+        return Status.Green;
       } else if (answer.includes(box.letter)) {
-        return 'yellow';
+        return Status.Yellow;
       }
-      return 'gray';
+      return Status.Gray;
     });
     const checkedRow: BoxType[] = currentRow.map((box, index): BoxType => {
       return { letter: box.letter, status: statusArray[index] };
@@ -156,7 +162,8 @@ const Game: React.FC = () => {
         );
         if (
           checkedRow.every(
-            (letterObject: BoxType): boolean => letterObject.status === 'green'
+            (letterObject: BoxType): boolean =>
+              letterObject.status === Status.Green
           )
         ) {
           isWin.current = true;
