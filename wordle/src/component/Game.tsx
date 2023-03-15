@@ -24,7 +24,7 @@ type Action =
       type: 'clear';
       payload: CurrentIndex;
     }
-  | { type: 'sent'; payload: BoxType[] };
+  | { type: 'sent'; payload: { currentRow: BoxType[]; reset: BoxType[] } };
 
 function reducer(state: BoxType[], action: Action): BoxType[] {
   function upDateArr(current: CurrentIndex, newValue: string) {
@@ -49,7 +49,7 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
       return upDateArr(current, '');
     }
     case 'sent': {
-      return action.payload;
+      return action.payload.reset;
     }
     default:
       throw new Error();
@@ -107,9 +107,22 @@ const Game: React.FC = () => {
   });
   const [guessMap, setGuessMap] = useState<BoxType[][]>(initData);
   const [currentRow, dispatch] = useReducer(reducer, initData[0]);
-  const answerRow = useRef<BoxType[]>(initData[0]);
   const isWin = useRef<boolean>(false);
-  console.log(currentRow);
+
+  function checkAnswer(currentRow: BoxType[]): BoxType[] {
+    const statusArray: Status[] = currentRow.map((box, index): Status => {
+      if (box.letter === answer[index]) {
+        return 'green';
+      } else if (answer.includes(box.letter)) {
+        return 'yellow';
+      }
+      return 'gray';
+    });
+    const checkedRow: BoxType[] = currentRow.map((box, index): BoxType => {
+      return { letter: box.letter, status: statusArray[index] };
+    });
+    return checkedRow;
+  }
 
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
@@ -126,29 +139,23 @@ const Game: React.FC = () => {
           ...currentIndex,
           letterIndex: currentIndex.letterIndex + 1,
         });
-        if (currentIndex.letterIndex === 4) {
-          answerRow.current = checkAnswer(
-            currentRow,
-            e.key.toUpperCase(),
-            answer
-          );
-        }
       } else if (e.key === 'Enter' && currentIndex.letterIndex === 5) {
+        const checkedRow = checkAnswer(currentRow);
         setCurrentIndex({
           rowIndex: currentIndex.rowIndex + 1,
           letterIndex: 0,
         });
-        setGuessMap(
-          guessMap.map((row, index) =>
-            index === currentIndex.rowIndex ? answerRow.current : row
-          )
-        );
         dispatch({
           type: 'sent',
-          payload: initData[0],
+          payload: { currentRow: currentRow, reset: initData[0] },
         });
+        setGuessMap(
+          guessMap.map((row, index) =>
+            index === currentIndex.rowIndex ? checkedRow : row
+          )
+        );
         if (
-          answerRow.current.every(
+          checkedRow.every(
             (letterObject: BoxType): boolean => letterObject.status === 'green'
           )
         ) {
@@ -168,35 +175,6 @@ const Game: React.FC = () => {
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
   }, [currentIndex]);
-
-  function checkAnswer(
-    guessing: BoxType[],
-    currentInput: string,
-    answer: string[]
-  ): BoxType[] {
-    const guessingLetters: string[] = [
-      ...guessing
-        .map((letterObject: BoxType): string => letterObject.letter)
-        .slice(0, 4),
-      currentInput,
-    ];
-    const statusArray: Status[] = guessingLetters.map(
-      (letter, index): Status => {
-        if (letter === answer[index]) {
-          return 'green';
-        } else if (answer.includes(letter)) {
-          return 'yellow';
-        }
-        return 'gray';
-      }
-    );
-    const checkedRow: BoxType[] = guessingLetters.map(
-      (letter, index): BoxType => {
-        return { letter: letter, status: statusArray[index] };
-      }
-    );
-    return checkedRow;
-  }
 
   return (
     <div className="flex flex-col gap-1.5 my-60">
