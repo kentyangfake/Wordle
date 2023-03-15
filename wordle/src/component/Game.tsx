@@ -21,16 +21,25 @@ type CurrentIndex = {
   letterIndex: number;
 };
 
+enum ActionType {
+  Input,
+  Clear,
+  Sent,
+}
+
 type Action =
   | {
-      type: 'input';
+      type: ActionType.Input;
       payload: { value: string; current: CurrentIndex };
     }
   | {
-      type: 'clear';
+      type: ActionType.Clear;
       payload: CurrentIndex;
     }
-  | { type: 'sent'; payload: { currentRow: BoxType[]; reset: BoxType[] } };
+  | {
+      type: ActionType.Sent;
+      payload: { currentRow: BoxType[]; reset: BoxType[] };
+    };
 
 function reducer(state: BoxType[], action: Action): BoxType[] {
   function upDateArr(current: CurrentIndex, newValue: string) {
@@ -45,16 +54,16 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
   }
 
   switch (action.type) {
-    case 'input': {
+    case ActionType.Input: {
       const current = action.payload.current;
       const newValue = action.payload.value;
       return upDateArr(current, newValue);
     }
-    case 'clear': {
+    case ActionType.Clear: {
       const current = action.payload;
       return upDateArr(current, '');
     }
-    case 'sent': {
+    case ActionType.Sent: {
       return action.payload.reset;
     }
     default:
@@ -135,7 +144,7 @@ const Game: React.FC = () => {
       const regex: RegExp = /^[A-Za-z]{1}$/;
       if (regex.test(e.key) && currentIndex.letterIndex < 5 && !isWin.current) {
         dispatch({
-          type: 'input',
+          type: ActionType.Input,
           payload: {
             value: e.key.toUpperCase(),
             current: currentIndex,
@@ -152,7 +161,7 @@ const Game: React.FC = () => {
           letterIndex: 0,
         });
         dispatch({
-          type: 'sent',
+          type: ActionType.Sent,
           payload: { currentRow: currentRow, reset: initData[0] },
         });
         setGuessMap(
@@ -170,7 +179,7 @@ const Game: React.FC = () => {
         }
       } else if (e.key === 'Backspace' && currentIndex.letterIndex >= 0) {
         dispatch({
-          type: 'clear',
+          type: ActionType.Clear,
           payload: currentIndex,
         });
         setCurrentIndex({
