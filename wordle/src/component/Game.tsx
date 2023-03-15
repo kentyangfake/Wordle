@@ -18,7 +18,7 @@ interface BoxType {
 
 type CurrentIndex = {
   rowIndex: number;
-  letterIndex: number;
+  boxIndex: number;
 };
 
 enum ActionType {
@@ -45,8 +45,7 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
   function upDateArr(current: CurrentIndex, newValue: string) {
     const isClear = newValue === '' ? Status.Blank : Status.Active;
     const newArr: BoxType[] = state.map((letter, index) =>
-      index ===
-      (newValue === '' ? current.letterIndex - 1 : current.letterIndex)
+      index === (newValue === '' ? current.boxIndex - 1 : current.boxIndex)
         ? { letter: newValue, status: isClear }
         : letter
     );
@@ -118,7 +117,7 @@ const Game: React.FC = () => {
   ];
   const [currentIndex, setCurrentIndex] = useState<CurrentIndex>({
     rowIndex: 0,
-    letterIndex: 0,
+    boxIndex: 0,
   });
   const [guessMap, setGuessMap] = useState<BoxType[][]>(initData);
   const [currentRow, dispatch] = useReducer(reducer, initData[0]);
@@ -142,7 +141,7 @@ const Game: React.FC = () => {
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
       const regex: RegExp = /^[A-Za-z]{1}$/;
-      if (regex.test(e.key) && currentIndex.letterIndex < 5 && !isWin.current) {
+      if (regex.test(e.key) && currentIndex.boxIndex < 5 && !isWin.current) {
         dispatch({
           type: ActionType.Input,
           payload: {
@@ -152,13 +151,13 @@ const Game: React.FC = () => {
         });
         setCurrentIndex({
           ...currentIndex,
-          letterIndex: currentIndex.letterIndex + 1,
+          boxIndex: currentIndex.boxIndex + 1,
         });
-      } else if (e.key === 'Enter' && currentIndex.letterIndex === 5) {
+      } else if (e.key === 'Enter' && currentIndex.boxIndex === 5) {
         const checkedRow = checkAnswer(currentRow);
         setCurrentIndex({
           rowIndex: currentIndex.rowIndex + 1,
-          letterIndex: 0,
+          boxIndex: 0,
         });
         dispatch({
           type: ActionType.Sent,
@@ -177,14 +176,14 @@ const Game: React.FC = () => {
         ) {
           isWin.current = true;
         }
-      } else if (e.key === 'Backspace' && currentIndex.letterIndex >= 0) {
+      } else if (e.key === 'Backspace' && currentIndex.boxIndex >= 0) {
         dispatch({
           type: ActionType.Clear,
           payload: currentIndex,
         });
         setCurrentIndex({
           ...currentIndex,
-          letterIndex: currentIndex.letterIndex - 1,
+          boxIndex: currentIndex.boxIndex - 1,
         });
       }
     };

@@ -14,10 +14,10 @@ interface BoxType {
 }
 
 interface BoxProps {
-  letterObject: BoxType;
+  boxContent: BoxType;
 }
 
-const Box: React.FC<BoxProps> = ({ letterObject }) => {
+const Box: React.FC<BoxProps> = ({ boxContent }) => {
   const BoxStatus: { [key: string]: string } = {
     blank: 'border border-gray-400',
     active: 'border text-4xl font-medium border-black',
@@ -28,7 +28,7 @@ const Box: React.FC<BoxProps> = ({ letterObject }) => {
 
   let boxStyle = 'flex justify-center items-center w-16 h-16';
 
-  switch (letterObject.status) {
+  switch (boxContent.status) {
     case Status.Active:
       boxStyle = boxStyle.concat(' ', BoxStatus.active);
       break;
@@ -46,7 +46,7 @@ const Box: React.FC<BoxProps> = ({ letterObject }) => {
       break;
   }
 
-  return <div className={boxStyle}>{letterObject.letter}</div>;
+  return <div className={boxStyle}>{boxContent.letter}</div>;
 };
 
 export default Box;
