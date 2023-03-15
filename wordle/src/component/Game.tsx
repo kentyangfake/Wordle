@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useReducer, useState } from 'react';
 import Row from './Row';
 
+const answer: string[] = ['S', 'M', 'I', 'L', 'E'];
+
 type Status = 'active' | 'gray' | 'yellow' | 'green' | 'blank';
 
 interface BoxType {
@@ -26,9 +28,11 @@ type Action =
 
 function reducer(state: BoxType[], action: Action): BoxType[] {
   function upDateArr(current: CurrentIndex, newValue: string) {
+    const isClear = newValue === '' ? 'blank' : 'active';
     const newArr: BoxType[] = state.map((letter, index) =>
-      index === current.letterIndex
-        ? { letter: newValue, status: 'active' }
+      index ===
+      (newValue === '' ? current.letterIndex - 1 : current.letterIndex)
+        ? { letter: newValue, status: isClear }
         : letter
     );
     return newArr;
@@ -97,7 +101,7 @@ const Game: React.FC = () => {
       { status: 'blank', letter: '' },
     ],
   ];
-  const [current, setCurrent] = useState<CurrentIndex>({
+  const [currentIndex, setCurrentIndex] = useState<CurrentIndex>({
     rowIndex: 0,
     letterIndex: 0,
   });
@@ -105,32 +109,38 @@ const Game: React.FC = () => {
   const [currentRow, dispatch] = useReducer(reducer, initData[0]);
   const answerRow = useRef<BoxType[]>(initData[0]);
   const isWin = useRef<boolean>(false);
-  const answer: string[] = ['S', 'M', 'I', 'L', 'E'];
+  console.log(currentRow);
 
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
       const regex: RegExp = /^[A-Za-z]{1}$/;
-      if (regex.test(e.key) && current.letterIndex < 5 && !isWin.current) {
+      if (regex.test(e.key) && currentIndex.letterIndex < 5 && !isWin.current) {
         dispatch({
           type: 'input',
           payload: {
             value: e.key.toUpperCase(),
-            current: current,
+            current: currentIndex,
           },
         });
-        setCurrent({ ...current, letterIndex: current.letterIndex + 1 });
-        if (current.letterIndex === 4) {
+        setCurrentIndex({
+          ...currentIndex,
+          letterIndex: currentIndex.letterIndex + 1,
+        });
+        if (currentIndex.letterIndex === 4) {
           answerRow.current = checkAnswer(
             currentRow,
             e.key.toUpperCase(),
             answer
           );
         }
-      } else if (e.key === 'Enter' && current.letterIndex === 5) {
-        setCurrent({ rowIndex: current.rowIndex + 1, letterIndex: 0 });
+      } else if (e.key === 'Enter' && currentIndex.letterIndex === 5) {
+        setCurrentIndex({
+          rowIndex: currentIndex.rowIndex + 1,
+          letterIndex: 0,
+        });
         setGuessMap(
           guessMap.map((row, index) =>
-            index === current.rowIndex ? answerRow.current : row
+            index === currentIndex.rowIndex ? answerRow.current : row
           )
         );
         dispatch({
@@ -144,17 +154,20 @@ const Game: React.FC = () => {
         ) {
           isWin.current = true;
         }
-      } else if (e.key === 'Backspace' && current.letterIndex >= 0) {
+      } else if (e.key === 'Backspace' && currentIndex.letterIndex >= 0) {
         dispatch({
           type: 'clear',
-          payload: current,
+          payload: currentIndex,
         });
-        setCurrent({ ...current, letterIndex: current.letterIndex - 1 });
+        setCurrentIndex({
+          ...currentIndex,
+          letterIndex: currentIndex.letterIndex - 1,
+        });
       }
     };
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [current]);
+  }, [currentIndex]);
 
   function checkAnswer(
     guessing: BoxType[],
@@ -190,7 +203,7 @@ const Game: React.FC = () => {
       {guessMap.map((row: BoxType[], index) => (
         <Row
           key={index}
-          rowContent={index === current.rowIndex ? currentRow : row}
+          rowContent={index === currentIndex.rowIndex ? currentRow : row}
         />
       ))}
     </div>
