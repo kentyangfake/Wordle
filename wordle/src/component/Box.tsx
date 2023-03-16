@@ -14,7 +14,7 @@ const Box: React.FC<BoxProps> = ({ boxContent }) => {
     [Status.Green]: 'text-4xl font-medium bg-[#6aaa64] text-white',
   };
 
-  const boxStyle = BoxStatus[boxContent.status] || BoxStatus[Status.Blank];
+  const boxStyle = BoxStatus[boxContent.status];
 
   return (
     <div className={`flex justify-center items-center w-16 h-16 ${boxStyle}`}>
