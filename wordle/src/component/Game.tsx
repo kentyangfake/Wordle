@@ -46,8 +46,7 @@ function reducer(state: GameInfo, action: Action): GameInfo {
       )
     );
   if (gameOver) return state;
-  const { gameData } = state;
-  const currentIndex = state.currentIndex;
+  const { gameData, currentIndex } = state;
   const newGameData = [...gameData];
 
   function checkAnswer(currentRow: BoxType[]): BoxType[] {
