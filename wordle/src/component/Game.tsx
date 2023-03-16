@@ -33,10 +33,19 @@ type Action =
     };
 
 function reducer(state: GameInfo, action: Action): GameInfo {
-  const isWin = state.gameData.find((row) =>
-    row.every((box) => box.status === Status.Green)
-  );
-  if (isWin) return state;
+  const gameOver =
+    state.gameData.find((row) =>
+      row.every((box) => box.status === Status.Green)
+    ) ||
+    state.gameData.every((row) =>
+      row.every(
+        (box) =>
+          box.status === Status.Green ||
+          box.status === Status.Gray ||
+          box.status === Status.Yellow
+      )
+    );
+  if (gameOver) return state;
   const { gameData } = state;
   const currentIndex = state.currentIndex;
   const newGameData = [...gameData];
@@ -69,7 +78,7 @@ function reducer(state: GameInfo, action: Action): GameInfo {
 
   switch (action.type) {
     case ActionType.Character: {
-      if (state.currentIndex.box < 5 && !isWin) {
+      if (state.currentIndex.box < 5 && !gameOver) {
         const newValue = action.payload;
         const newRow = updateArr(currentIndex, newValue);
         newGameData[currentIndex.row] = newRow;
@@ -84,7 +93,7 @@ function reducer(state: GameInfo, action: Action): GameInfo {
       return state;
     }
     case ActionType.Backspace: {
-      if (currentIndex.box >= 0) {
+      if (currentIndex.box > 0) {
         const newRow = updateArr(currentIndex, '');
         newGameData[currentIndex.row] = newRow;
         return {
