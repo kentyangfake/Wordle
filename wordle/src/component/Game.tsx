@@ -33,11 +33,12 @@ type Action =
     };
 
 function reducer(state: GameInfo, action: Action): GameInfo {
+  const { gameData, currentIndex } = state;
+  const newGameData = [...gameData];
+
   const gameOver =
-    state.gameData.find((row) =>
-      row.every((box) => box.status === Status.Green)
-    ) ||
-    state.gameData.every((row) =>
+    gameData.find((row) => row.every((box) => box.status === Status.Green)) ||
+    gameData.every((row) =>
       row.every(
         (box) =>
           box.status === Status.Green ||
@@ -46,8 +47,6 @@ function reducer(state: GameInfo, action: Action): GameInfo {
       )
     );
   if (gameOver) return state;
-  const { gameData, currentIndex } = state;
-  const newGameData = [...gameData];
 
   function checkAnswer(currentRow: BoxType[]): BoxType[] {
     const statusArray: Status[] = currentRow.map((box, index): Status => {
