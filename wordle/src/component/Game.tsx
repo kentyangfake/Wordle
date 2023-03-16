@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useReducer, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import Row from './Row';
 import { Status, BoxType } from './Type';
 
@@ -23,15 +23,13 @@ enum ActionType {
 type Action =
   | {
       type: ActionType.Character;
-      payload: { value: string; currentIndex: CurrentIndex };
+      payload: string;
     }
   | {
       type: ActionType.Backspace;
-      payload: { currentIndex: CurrentIndex };
     }
   | {
       type: ActionType.Enter;
-      payload: { currentIndex: CurrentIndex };
     };
 
 function reducer(state: GameInfo, action: Action): GameInfo {
@@ -40,7 +38,7 @@ function reducer(state: GameInfo, action: Action): GameInfo {
   );
   if (isWin) return state;
   const { gameData } = state;
-  const currentIndex = action.payload.currentIndex;
+  const currentIndex = state.currentIndex;
   const newGameData = [...gameData];
 
   function checkAnswer(currentRow: BoxType[]): BoxType[] {
@@ -72,7 +70,7 @@ function reducer(state: GameInfo, action: Action): GameInfo {
   switch (action.type) {
     case ActionType.Character: {
       if (state.currentIndex.box < 5 && !isWin) {
-        const { value: newValue } = action.payload;
+        const newValue = action.payload;
         const newRow = updateArr(currentIndex, newValue);
         newGameData[currentIndex.row] = newRow;
         return {
@@ -140,33 +138,15 @@ const Game: React.FC = () => {
       if (ENGLISH_ONLY.test(e.key)) {
         dispatch({
           type: ActionType.Character,
-          payload: {
-            value: e.key.toUpperCase(),
-            currentIndex: {
-              row: game.currentIndex.row,
-              box: game.currentIndex.box,
-            },
-          },
+          payload: e.key.toUpperCase(),
         });
       } else if (e.key === 'Enter') {
         dispatch({
           type: ActionType.Enter,
-          payload: {
-            currentIndex: {
-              row: game.currentIndex.row,
-              box: game.currentIndex.box,
-            },
-          },
         });
       } else if (e.key === 'Backspace') {
         dispatch({
           type: ActionType.Backspace,
-          payload: {
-            currentIndex: {
-              row: game.currentIndex.row,
-              box: game.currentIndex.box,
-            },
-          },
         });
       }
     };
