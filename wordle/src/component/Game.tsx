@@ -4,9 +4,14 @@ import { Status, BoxType } from './Type';
 
 const answer: string[] = ['Y', 'I', 'Q', 'U', 'N'];
 
+type GameInfo = {
+  gameData: BoxType[][];
+  currentIndex: CurrentIndex;
+};
+
 type CurrentIndex = {
-  rowIndex: number;
-  boxIndex: number;
+  row: number;
+  box: number;
 };
 
 enum ActionType {
@@ -18,60 +23,25 @@ enum ActionType {
 type Action =
   | {
       type: ActionType.Character;
-      payload: { value: string; current: CurrentIndex };
+      payload: { value: string; currentIndex: CurrentIndex };
     }
   | {
       type: ActionType.Backspace;
-      payload: CurrentIndex;
+      payload: { currentIndex: CurrentIndex };
     }
   | {
       type: ActionType.Enter;
-      payload: { currentRow: BoxType[]; reset: BoxType[] };
+      payload: { currentIndex: CurrentIndex };
     };
 
-function reducer(state: BoxType[], action: Action): BoxType[] {
-  function upDateArr(current: CurrentIndex, newValue: string) {
-    const isClear = newValue === '' ? Status.Blank : Status.Active;
-    const newArr: BoxType[] = state.map((letter, index) =>
-      index === (newValue === '' ? current.boxIndex - 1 : current.boxIndex)
-        ? { letter: newValue, status: isClear }
-        : letter
-    );
-    return newArr;
-  }
-
-  switch (action.type) {
-    case ActionType.Character: {
-      const { current, value: newValue } = action.payload;
-      return upDateArr(current, newValue);
-    }
-    case ActionType.Backspace: {
-      const current = action.payload;
-      return upDateArr(current, '');
-    }
-    case ActionType.Enter: {
-      return action.payload.reset;
-    }
-    default:
-      throw new Error();
-  }
-}
-
-const Game: React.FC = () => {
-  const initData: BoxType[][] = new Array(6).fill(
-    new Array(5).fill({
-      letter: '',
-      status: Status.Blank,
-    })
+function reducer(state: GameInfo, action: Action): GameInfo {
+  const isWin = state.gameData.find((row) =>
+    row.every((box) => box.status === Status.Green)
   );
-
-  const [currentIndex, setCurrentIndex] = useState<CurrentIndex>({
-    rowIndex: 0,
-    boxIndex: 0,
-  });
-  const [guessMap, setGuessMap] = useState<BoxType[][]>(initData);
-  const [currentRow, dispatch] = useReducer(reducer, initData[0]);
-  const isWin = useRef<boolean>(false);
+  if (isWin) return state;
+  const { gameData } = state;
+  const currentIndex = action.payload.currentIndex;
+  const newGameData = [...gameData];
 
   function checkAnswer(currentRow: BoxType[]): BoxType[] {
     const statusArray: Status[] = currentRow.map((box, index): Status => {
@@ -87,67 +57,127 @@ const Game: React.FC = () => {
     });
     return checkedRow;
   }
+  function updateArr(index: CurrentIndex, newValue: string) {
+    const isClear = newValue === '' ? Status.Blank : Status.Active;
+    const rowIndex = index.row;
+    const boxIndex = index.box;
+    const newArr: BoxType[] = state.gameData[rowIndex].map((letter, index) =>
+      index === (newValue === '' ? boxIndex - 1 : boxIndex)
+        ? { letter: newValue, status: isClear }
+        : letter
+    );
+    return newArr;
+  }
+
+  switch (action.type) {
+    case ActionType.Character: {
+      if (state.currentIndex.box < 5 && !isWin) {
+        const { value: newValue } = action.payload;
+        const newRow = updateArr(currentIndex, newValue);
+        newGameData[currentIndex.row] = newRow;
+        return {
+          gameData: newGameData,
+          currentIndex: {
+            row: currentIndex.row,
+            box: currentIndex.box + 1,
+          },
+        };
+      }
+      return state;
+    }
+    case ActionType.Backspace: {
+      if (currentIndex.box >= 0) {
+        const newRow = updateArr(currentIndex, '');
+        newGameData[currentIndex.row] = newRow;
+        return {
+          gameData: newGameData,
+          currentIndex: {
+            row: currentIndex.row,
+            box: currentIndex.box - 1,
+          },
+        };
+      }
+      return state;
+    }
+    case ActionType.Enter: {
+      if (currentIndex.box === 5) {
+        const checkedRow = checkAnswer(gameData[currentIndex.row]);
+        newGameData[currentIndex.row] = checkedRow;
+        return {
+          gameData: newGameData,
+          currentIndex: {
+            row: currentIndex.row + 1,
+            box: 0,
+          },
+        };
+      }
+      return state;
+    }
+    default:
+      throw new Error();
+  }
+}
+
+const Game: React.FC = () => {
+  const initData: BoxType[][] = new Array(6).fill(
+    new Array(5).fill({
+      letter: '',
+      status: Status.Blank,
+    })
+  );
+
+  const [game, dispatch] = useReducer(reducer, {
+    gameData: initData,
+    currentIndex: {
+      row: 0,
+      box: 0,
+    },
+  });
 
   useEffect(() => {
     const handleKeyup = (e: KeyboardEvent) => {
-      const regex: RegExp = /^[A-Za-z]{1}$/;
-      if (regex.test(e.key) && currentIndex.boxIndex < 5 && !isWin.current) {
+      const ENGLISH_ONLY: RegExp = /^[A-Za-z]{1}$/;
+      if (ENGLISH_ONLY.test(e.key)) {
         dispatch({
           type: ActionType.Character,
           payload: {
             value: e.key.toUpperCase(),
-            current: currentIndex,
+            currentIndex: {
+              row: game.currentIndex.row,
+              box: game.currentIndex.box,
+            },
           },
         });
-        setCurrentIndex({
-          ...currentIndex,
-          boxIndex: currentIndex.boxIndex + 1,
-        });
-      } else if (e.key === 'Enter' && currentIndex.boxIndex === 5) {
-        const checkedRow = checkAnswer(currentRow);
-        setCurrentIndex({
-          rowIndex: currentIndex.rowIndex + 1,
-          boxIndex: 0,
-        });
+      } else if (e.key === 'Enter') {
         dispatch({
           type: ActionType.Enter,
-          payload: { currentRow: currentRow, reset: initData[0] },
+          payload: {
+            currentIndex: {
+              row: game.currentIndex.row,
+              box: game.currentIndex.box,
+            },
+          },
         });
-        setGuessMap(
-          guessMap.map((row, index) =>
-            index === currentIndex.rowIndex ? checkedRow : row
-          )
-        );
-        if (
-          checkedRow.every(
-            (letterObject: BoxType): boolean =>
-              letterObject.status === Status.Green
-          )
-        ) {
-          isWin.current = true;
-        }
-      } else if (e.key === 'Backspace' && currentIndex.boxIndex >= 0) {
+      } else if (e.key === 'Backspace') {
         dispatch({
           type: ActionType.Backspace,
-          payload: currentIndex,
-        });
-        setCurrentIndex({
-          ...currentIndex,
-          boxIndex: currentIndex.boxIndex - 1,
+          payload: {
+            currentIndex: {
+              row: game.currentIndex.row,
+              box: game.currentIndex.box,
+            },
+          },
         });
       }
     };
     window.addEventListener('keyup', handleKeyup);
     return () => window.removeEventListener('keyup', handleKeyup);
-  }, [currentIndex]);
+  }, []);
 
   return (
     <div className="flex flex-col gap-1.5 my-60">
-      {guessMap.map((row: BoxType[], index) => (
-        <Row
-          key={index}
-          rowContent={index === currentIndex.rowIndex ? currentRow : row}
-        />
+      {game.gameData.map((row: BoxType[], index) => (
+        <Row key={index} rowContent={row} />
       ))}
     </div>
   );
