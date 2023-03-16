@@ -10,22 +10,22 @@ type CurrentIndex = {
 };
 
 enum ActionType {
-  Input,
-  Clear,
-  Sent,
+  Character,
+  Backspace,
+  Enter,
 }
 
 type Action =
   | {
-      type: ActionType.Input;
+      type: ActionType.Character;
       payload: { value: string; current: CurrentIndex };
     }
   | {
-      type: ActionType.Clear;
+      type: ActionType.Backspace;
       payload: CurrentIndex;
     }
   | {
-      type: ActionType.Sent;
+      type: ActionType.Enter;
       payload: { currentRow: BoxType[]; reset: BoxType[] };
     };
 
@@ -41,16 +41,15 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
   }
 
   switch (action.type) {
-    case ActionType.Input: {
-      const current = action.payload.current;
-      const newValue = action.payload.value;
+    case ActionType.Character: {
+      const { current, value: newValue } = action.payload;
       return upDateArr(current, newValue);
     }
-    case ActionType.Clear: {
+    case ActionType.Backspace: {
       const current = action.payload;
       return upDateArr(current, '');
     }
-    case ActionType.Sent: {
+    case ActionType.Enter: {
       return action.payload.reset;
     }
     default:
@@ -94,7 +93,7 @@ const Game: React.FC = () => {
       const regex: RegExp = /^[A-Za-z]{1}$/;
       if (regex.test(e.key) && currentIndex.boxIndex < 5 && !isWin.current) {
         dispatch({
-          type: ActionType.Input,
+          type: ActionType.Character,
           payload: {
             value: e.key.toUpperCase(),
             current: currentIndex,
@@ -111,7 +110,7 @@ const Game: React.FC = () => {
           boxIndex: 0,
         });
         dispatch({
-          type: ActionType.Sent,
+          type: ActionType.Enter,
           payload: { currentRow: currentRow, reset: initData[0] },
         });
         setGuessMap(
@@ -129,7 +128,7 @@ const Game: React.FC = () => {
         }
       } else if (e.key === 'Backspace' && currentIndex.boxIndex >= 0) {
         dispatch({
-          type: ActionType.Clear,
+          type: ActionType.Backspace,
           payload: currentIndex,
         });
         setCurrentIndex({
