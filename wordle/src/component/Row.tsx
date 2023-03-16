@@ -1,17 +1,6 @@
 import React from 'react';
 import Box from './Box';
-
-enum Status {
-  Active,
-  Gray,
-  Yellow,
-  Green,
-  Blank,
-}
-interface BoxType {
-  status: Status;
-  letter: string;
-}
+import { BoxType } from './Type';
 
 interface RowProps {
   rowContent: BoxType[];

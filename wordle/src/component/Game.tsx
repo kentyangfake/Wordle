@@ -1,20 +1,8 @@
 import React, { useEffect, useRef, useReducer, useState } from 'react';
 import Row from './Row';
+import { Status, BoxType } from './Type';
 
-const answer: string[] = ['S', 'M', 'I', 'L', 'E'];
-
-enum Status {
-  Active,
-  Gray,
-  Yellow,
-  Green,
-  Blank,
-}
-
-interface BoxType {
-  status: Status;
-  letter: string;
-}
+const answer: string[] = ['Y', 'I', 'Q', 'U', 'N'];
 
 type CurrentIndex = {
   rowIndex: number;
@@ -71,50 +59,13 @@ function reducer(state: BoxType[], action: Action): BoxType[] {
 }
 
 const Game: React.FC = () => {
-  const initData: BoxType[][] = [
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-    [
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-      { status: Status.Blank, letter: '' },
-    ],
-  ];
+  const initData: BoxType[][] = new Array(6).fill(
+    new Array(5).fill({
+      letter: '',
+      status: Status.Blank,
+    })
+  );
+
   const [currentIndex, setCurrentIndex] = useState<CurrentIndex>({
     rowIndex: 0,
     boxIndex: 0,
