@@ -2,47 +2,42 @@
 
 ## Requirements
 - wordle logic
+- words collection
+
+### Skills
+- create-react-app
+- JavaScript / [TypeScript](https://react-typescript-cheatsheet.netlify.app/)
+- useState / [useReducer](https://beta.reactjs.org/reference/react/useReducer)
+- styled-components / [tailwind](https://tailwindcss.com/docs/guides/vite)
+
+### feature/phase-0
+- Setup Project
+
+### feature/phase-1
+- Add wordle page
+- Implement wordle logic
+    - [Thinking in React](https://beta.reactjs.org/learn/thinking-in-react#step-1-break-the-ui-into-a-component-hierarchy-step-1-break-the-ui-into-a-component-hierarchy)
+
+### feature/phase-2
+- Implement words collection
+
+## Advanced
 - firebase authentication
-- routes
-    - wordle page
-    - profile page
-    - members page
-    - login page (optional)
 - users collection
     - id
     - name
     - email
-    - points
-    - photoURL (optional)
-- words collection
+    - point
 
-### Skills
-- typescript
-- create-react-app, next.js
-- react-router, react-location
-- styled-components, emotion, tailwind
-- redux, xstate, query, useReducer (optional)
-
-### Phase 0
-- Setup Project
-
-### Phase 1
-- Add wordle page
-- Implement wordle logic
-
-### Phase 2
-- Implement users collection
+### feature/phase-3
 - Integrate firebase authentication
 - Add profile page
 
-### Phase 3
+### feature/phase-4
 - Add members Page
 - Sort members by points
 
-### Phase 4
-- Choose at least one advanced topic
-
-### Advanced
+### Optional
 - theme
 - i18n
 - online status
